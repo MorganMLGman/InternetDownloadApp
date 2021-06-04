@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -19,6 +20,7 @@ import javax.net.ssl.HttpsURLConnection;
 public class MainActivity extends AppCompatActivity {
 
     Button download_info;
+    Button download_file;
     EditText editText_address;
     TextView file_size_info;
     TextView file_type_info;
@@ -32,8 +34,11 @@ public class MainActivity extends AppCompatActivity {
         file_size_info = findViewById(R.id.textView_file_size_info);
         file_type_info = findViewById(R.id.textView_file_type_info);
         download_info = findViewById(R.id.button_download_info);
+        download_file = findViewById(R.id.button_download_file);
 
         download_info.setOnClickListener(v -> downloadInfo());
+
+        download_file.setOnClickListener(v -> DownloadService.startService(MainActivity.this, 1));
     }
 
     protected void downloadInfo()
