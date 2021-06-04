@@ -4,9 +4,9 @@ import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
@@ -46,22 +46,24 @@ public class DownloadService extends IntentService {
     private void prepareNotificationChannel()
     {
         notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
-            CharSequence name = getString(R.string.app_name);
-            NotificationChannel notificationChannel = new NotificationChannel(String.valueOf(NOTIFICATION_ID), name, NotificationManager.IMPORTANCE_DEFAULT);
-            notificationChannel.setImportance(NotificationManager.IMPORTANCE_DEFAULT);
-            notificationManager.createNotificationChannel(notificationChannel);
-        }
+        CharSequence name = getString(R.string.app_name);
+        NotificationChannel notificationChannel = new NotificationChannel(String.valueOf(NOTIFICATION_ID), name, NotificationManager.IMPORTANCE_DEFAULT);
+        notificationChannel.setImportance(NotificationManager.IMPORTANCE_DEFAULT);
+        notificationManager.createNotificationChannel(notificationChannel);
     }
 
     private Notification createNotification()
     {
-        Intent notificationIntent = new Intent(this, DownloadService.class);
+        Intent notificationIntent = new Intent(this, MainActivity.class);
+        notificationIntent.setAction(Intent.ACTION_MAIN);
+        notificationIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
         Notification.Builder notificationBuilder = new Notification.Builder(this, String.valueOf(NOTIFICATION_ID));
         notificationBuilder.setContentTitle("Downloading")
                 .setProgress(100, 100, false)
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
-                .setWhen(System.currentTimeMillis());
+                .setWhen(System.currentTimeMillis())
+                .setContentIntent(pendingIntent);
 
         notificationBuilder.setOngoing(false);
 
