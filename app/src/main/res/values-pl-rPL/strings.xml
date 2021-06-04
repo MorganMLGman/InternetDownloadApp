@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">App3</string>
+    <string name="address_label">Adres:</string>
+    <string name="download_info_label">Pobierz informacje</string>
+    <string name="file_size_label">Wielkość pliku</string>
+    <string name="file_type_label">Typ pliku</string>
+    <string name="download_file_label">Pobierz plik</string>
+    <string name="bytes_downloaded_label">Pobrano bajtów:</string>
+</resources>
