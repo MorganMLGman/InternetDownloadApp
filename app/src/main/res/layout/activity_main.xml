@@ -13,11 +13,12 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
-        android:text="0"
+        android:text="@string/_0"
         android:textAlignment="textEnd"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/textView_file_type"
-        app:layout_constraintTop_toBottomOf="@+id/textView_file_size_info" />
+        app:layout_constraintTop_toBottomOf="@+id/textView_file_size_info"
+        android:labelFor="@id/editText_address"/>
 
     <EditText
         android:id="@+id/editText_address"
@@ -28,10 +29,11 @@
         android:layout_marginEnd="8dp"
         android:ems="10"
         android:inputType="textPersonName"
-        android:text="https://"
+        android:text="@string/initial_url"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/textView_address"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:autofillHints="File URL" />
 
     <TextView
         android:id="@+id/textView_address"
@@ -39,7 +41,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:text="Address:"
+        android:text="@string/address_label"
         android:textSize="16sp"
         app:layout_constraintBaseline_toBaselineOf="@id/editText_address"
         app:layout_constraintStart_toStartOf="parent"
@@ -52,7 +54,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
-        android:text="Download info"
+        android:text="@string/download_info_label"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editText_address" />
@@ -63,7 +65,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:text="File size:"
+        android:text="@string/file_size_label"
         android:textSize="16sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/button_download_info" />
@@ -75,7 +77,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
-        android:text="0"
+        android:text="@string/_0"
         android:textSize="16sp"
         android:textAlignment="textEnd"
         app:layout_constraintEnd_toEndOf="parent"
@@ -88,7 +90,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:text="File type:"
+        android:text="@string/file_type_label"
         android:textSize="16sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView_file_size" />
@@ -100,7 +102,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
-        android:text="Download file"
+        android:text="@string/download_file_label"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView_file_type_info" />
@@ -111,7 +113,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
-        android:text="0"
+        android:text="@string/_0"
         android:textSize="16sp"
         android:textAlignment="textEnd"
         app:layout_constraintEnd_toEndOf="parent"
@@ -124,7 +126,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:text="Bytes downloaded:"
+        android:text="@string/bytes_downloaded_label"
         android:textSize="16sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/button_download_file" />

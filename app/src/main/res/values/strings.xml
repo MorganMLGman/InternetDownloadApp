@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">aplikacja3</string>
+    <string name="initial_url">https://</string>
+    <string name="address_label">Address:</string>
+    <string name="download_info_label">Download info</string>
+    <string name="file_size_label">File size:</string>
+    <string name="file_type_label">File type:</string>
+    <string name="_0">0</string>
+    <string name="download_file_label">Download file</string>
+    <string name="bytes_downloaded_label">Bytes downloaded:</string>
 </resources>
