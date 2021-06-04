@@ -1,14 +1,20 @@
 package com.example.aplikacja3;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
+import android.Manifest;
+import android.app.Activity;
+import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -25,6 +31,8 @@ public class MainActivity extends AppCompatActivity {
     TextView file_size_info;
     TextView file_type_info;
 
+    private static final int WRITE_EXTERNAL_STORAGE_CODE = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,27 +46,36 @@ public class MainActivity extends AppCompatActivity {
 
         download_info.setOnClickListener(v -> downloadInfo());
 
-        download_file.setOnClickListener(v -> DownloadService.startService(MainActivity.this, 1));
+        download_file.setOnClickListener(v ->
+        {
+            if(ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
+            {
+                DownloadService.startService(MainActivity.this, 1, editText_address.getText().toString());
+            }
+            else
+            {
+                if(ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE))
+                {
+
+                }
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, WRITE_EXTERNAL_STORAGE_CODE);
+            }
+        });
+
     }
 
     protected void downloadInfo()
     {
-        DownloadTask downloadTask = new DownloadTask();
-        downloadTask.execute(editText_address.getText().toString());
+        DownloadInfoTask downloadInfoTask = new DownloadInfoTask();
+        downloadInfoTask.execute(editText_address.getText().toString());
     }
 
 
-    public class DownloadTask extends AsyncTask<String, Integer, String[]> {
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-
-        }
+    public class DownloadInfoTask extends AsyncTask<String, Integer, String[]> {
 
         @Override
         protected String[] doInBackground(String... strings) {
-            Log.d("DownloadTask", "Run in background");
+            Log.d("DownloadInfoTask", "Run in background");
             URL url;
             try {
                 url = new URL(strings[0]);
@@ -85,6 +102,8 @@ public class MainActivity extends AppCompatActivity {
 
             Log.d("Info: ", size + " " + type);
 
+            connection.disconnect();
+
             String[] ret = new String[2];
             ret[0] = String.valueOf(size);
             ret[1] = type;
@@ -94,9 +113,23 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String[] strings) {
-            super.onPostExecute(strings);
             file_size_info.setText(strings[0]);
             file_type_info.setText(strings[1]);
+            super.onPostExecute(strings);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull @NotNull String[] permissions, @NonNull @NotNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode)
+        {
+            case WRITE_EXTERNAL_STORAGE_CODE:
+                if(permissions.length > 0 && permissions[0].equals(Manifest.permission.WRITE_EXTERNAL_STORAGE) && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                {
+                    DownloadService.startService(MainActivity.this, 1, editText_address.getText().toString());
+                }
+                break;
 
         }
     }
