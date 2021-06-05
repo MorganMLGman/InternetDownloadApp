@@ -21,6 +21,8 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.util.Locale;
+import java.util.Objects;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -96,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
             try {
                 connection.setRequestMethod("GET");
             } catch (ProtocolException e) {
-                Log.d("Error: ", e.getMessage());
+                Log.d("Error: ", Objects.requireNonNull(e.getMessage()));
             }
             int size = connection.getContentLength();
             String type = connection.getContentType();
@@ -106,7 +108,8 @@ public class MainActivity extends AppCompatActivity {
             connection.disconnect();
 
             String[] ret = new String[2];
-            ret[0] = String.valueOf(size);
+
+            ret[0] = String.format("%.3f", size / 1000000.0f);
             ret[1] = type;
 
             return ret;
@@ -114,7 +117,8 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String[] strings) {
-            file_size_info.setText(strings[0]);
+            String size = strings[0] + " MB";
+            file_size_info.setText(size);
             file_type_info.setText(strings[1]);
             super.onPostExecute(strings);
         }
