@@ -14,7 +14,6 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 
 import java.io.BufferedInputStream;
-import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -24,6 +23,7 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.util.Objects;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -34,7 +34,8 @@ public class DownloadService extends IntentService {
     private static final int NOTIFICATION_ID = 1;
     private NotificationManager notificationManager;
 
-    int downloadedBytes = 0;
+    private int downloadedBytes = 0;
+    private int progress = 0;
 
     public DownloadService(String name) {
         super(name);
@@ -60,7 +61,7 @@ public class DownloadService extends IntentService {
     {
         Log.d("Service", "Service started");
         prepareNotificationChannel();
-        notificationManager.notify(NOTIFICATION_ID, createNotification());
+        notificationManager.notify(NOTIFICATION_ID, createNotification(progress));
         assert intent != null;
         String url = intent.getStringExtra(URL_PARAM);
         DownloadFileTask downloadFileTask = new DownloadFileTask();
@@ -71,23 +72,34 @@ public class DownloadService extends IntentService {
     {
         notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         CharSequence name = getString(R.string.app_name);
-        NotificationChannel notificationChannel = new NotificationChannel(String.valueOf(NOTIFICATION_ID), name, NotificationManager.IMPORTANCE_DEFAULT);
-        notificationChannel.setImportance(NotificationManager.IMPORTANCE_DEFAULT);
+        NotificationChannel notificationChannel = new NotificationChannel(String.valueOf(NOTIFICATION_ID), name, NotificationManager.IMPORTANCE_LOW);
         notificationManager.createNotificationChannel(notificationChannel);
     }
 
-    private Notification createNotification()
+    private Notification createNotification(int progress)
     {
         Intent notificationIntent = new Intent(this, MainActivity.class);
         notificationIntent.setAction(Intent.ACTION_MAIN);
         notificationIntent.addCategory(Intent.CATEGORY_LAUNCHER);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
         Notification.Builder notificationBuilder = new Notification.Builder(this, String.valueOf(NOTIFICATION_ID));
-        notificationBuilder.setContentTitle("Downloading")
-                .setProgress(100, 100, false)
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
-                .setWhen(System.currentTimeMillis())
-                .setContentIntent(pendingIntent);
+        if(progress == 100)
+        {
+            notificationBuilder.setContentTitle("Download complete")
+                    .setProgress(0, 0, false)
+                    .setSmallIcon(R.drawable.ic_launcher_foreground)
+                    .setWhen(System.currentTimeMillis())
+                    .setContentIntent(pendingIntent);
+        }
+        else
+        {
+            notificationBuilder.setContentTitle("Downloading")
+                    .setProgress(100, progress, false)
+                    .setSmallIcon(R.drawable.ic_launcher_foreground)
+                    .setWhen(System.currentTimeMillis())
+                    .setContentIntent(pendingIntent);
+        }
+
 
         notificationBuilder.setOngoing(false);
 
@@ -104,14 +116,14 @@ public class DownloadService extends IntentService {
             try {
                 url = new URL(strings[0]);
             } catch (MalformedURLException e) {
-                Log.d("Error: ", e.getMessage());
+                Log.d("Error: ", Objects.requireNonNull(e.getMessage()));
                 return null;
             }
             HttpsURLConnection connection = null;
             try {
                 connection = (HttpsURLConnection) url.openConnection();
             } catch (IOException e) {
-                Log.d("Error: ", e.getMessage());
+                Log.d("Error: ", Objects.requireNonNull(e.getMessage()));
             }
             if (connection == null) {
                 return null;
@@ -119,63 +131,66 @@ public class DownloadService extends IntentService {
             try {
                 connection.setRequestMethod("GET");
             } catch (ProtocolException e) {
-                Log.d("Error: ", e.getMessage());
+                Log.d("Error: ", Objects.requireNonNull(e.getMessage()));
             }
+
+            int fileSize = connection.getContentLength();
 
             File temp = new File(url.getFile());
             File outputFile = new File(Environment.getExternalStorageDirectory() + File.separator + temp.getName());
 
             if(outputFile.exists())
             {
-                //outputFile.delete();
+                outputFile.delete();
             }
 
             FileOutputStream fileStream = null;
             try {
                 fileStream = new FileOutputStream(outputFile);
             } catch (FileNotFoundException e) {
-                Log.d("File output: ", e.getMessage());
+                Log.d("File output: ", Objects.requireNonNull(e.getMessage()));
             }
 
             OutputStream outputStream = fileStream;
             InputStream inputStream = null;
+
             try {
-                inputStream = new BufferedInputStream(url.openStream(), 1024);
+                inputStream = new BufferedInputStream(url.openStream(), 8192);
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.d("Input Stream: ", Objects.requireNonNull(e.getMessage()));
             }
 
             byte[] data = new byte[1024];
-            int downloaded = 0;
+            int downloaded;
             try
             {
                 while ((downloaded = inputStream.read(data)) != -1)
                 {
-                    downloadedBytes += downloaded;
                     outputStream.write(data, 0, downloaded);
+                    publishProgress(downloaded, fileSize);
                 }
             }
             catch (IOException e){
-                Log.d("Download error: ", e.getMessage());
+                Log.d("Download error: ", Objects.requireNonNull(e.getMessage()));
             }
 
             try {
                 outputStream.flush();
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.d("OutputStream", Objects.requireNonNull(e.getMessage()));
             }
 
             try {
                 outputStream.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.d("Output Stream", Objects.requireNonNull(e.getMessage()));
             }
 
 
             try {
                 inputStream.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.d("Input Stream", Objects.requireNonNull(e.getMessage()));
             }
 
             connection.disconnect();
@@ -183,6 +198,19 @@ public class DownloadService extends IntentService {
             Log.d("INFO: ", "File downloaded");
 
             return 0;
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            downloadedBytes += values[0];
+            int percentage = (downloadedBytes * 100) / values[1];
+            if(percentage >= progress + 5)
+            {
+                Log.d("Progress: ", String.valueOf(percentage));
+                progress = percentage;
+                notificationManager.notify(NOTIFICATION_ID, createNotification(progress));
+            }
+            super.onProgressUpdate(values);
         }
     }
 }

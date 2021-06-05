@@ -13,6 +13,7 @@ import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -56,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
             {
                 if(ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE))
                 {
-
+                    Toast.makeText(this, "Can't run. No permission", Toast.LENGTH_SHORT).show();
                 }
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, WRITE_EXTERNAL_STORAGE_CODE);
             }
@@ -130,7 +131,6 @@ public class MainActivity extends AppCompatActivity {
                     DownloadService.startService(MainActivity.this, 1, editText_address.getText().toString());
                 }
                 break;
-
         }
     }
 }
