@@ -135,6 +135,8 @@ public class MainActivity extends AppCompatActivity {
                     DownloadService.startService(MainActivity.this, 1, editText_address.getText().toString());
                 }
                 break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + requestCode);
         }
     }
 }
