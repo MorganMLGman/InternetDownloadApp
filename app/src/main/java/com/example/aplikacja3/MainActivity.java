@@ -6,7 +6,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -14,6 +13,7 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
-import java.util.Locale;
 import java.util.Objects;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -52,7 +51,13 @@ public class MainActivity extends AppCompatActivity {
             downloaded_bytes_info.setText(String.valueOf(downloaded_size));
             progressBar.setMin(0);
             progressBar.setMax(total_size);
-            progressBar.setProgress(downloaded_size);
+            progressBar.setProgress(downloaded_size, true);
+
+            if(total_size == downloaded_size)
+            {
+                Toast.makeText(MainActivity.this, "Download complete", Toast.LENGTH_SHORT).show();
+                progressBar.setProgress(0, true);
+            }
         }
     };
 
@@ -75,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
         {
             if(ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
             {
+                downloadInfo();
                 DownloadService.startService(MainActivity.this, 1, editText_address.getText().toString());
             }
             else
@@ -89,7 +95,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    protected void downloadInfo()
+    public void downloadInfo()
     {
         DownloadInfoTask downloadInfoTask = new DownloadInfoTask();
         downloadInfoTask.execute(editText_address.getText().toString());
@@ -154,6 +160,7 @@ public class MainActivity extends AppCompatActivity {
             case WRITE_EXTERNAL_STORAGE_CODE:
                 if(permissions.length > 0 && permissions[0].equals(Manifest.permission.WRITE_EXTERNAL_STORAGE) && grantResults[0] == PackageManager.PERMISSION_GRANTED)
                 {
+                    downloadInfo();
                     DownloadService.startService(MainActivity.this, 1, editText_address.getText().toString());
                 }
                 break;
@@ -172,6 +179,29 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        editText_address.setText(savedInstanceState.getString("editText_address"));
+        file_size_info.setText(savedInstanceState.getString("textView_size"));
+        file_type_info.setText(savedInstanceState.getString("textView_type"));
+        downloaded_bytes_info.setText(savedInstanceState.getString("textView_downloaded"));
+        progressBar.setMax(savedInstanceState.getInt("progressBar_max"));
+        progressBar.setProgress(savedInstanceState.getInt("progressBar_progress"),true);
+
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        outState.putString("editText_address", editText_address.getText().toString());
+        outState.putString("textView_size", file_size_info.getText().toString());
+        outState.putString("textView_type", file_type_info.getText().toString());
+        outState.putString("textView_downloaded", downloaded_bytes_info.getText().toString());
+        outState.putInt("progressBar_progress", progressBar.getProgress());
+        outState.putInt("progressBar_max", progressBar.getMax());
+        super.onSaveInstanceState(outState);
     }
 }
 
