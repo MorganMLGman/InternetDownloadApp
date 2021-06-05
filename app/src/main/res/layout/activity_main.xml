@@ -13,12 +13,12 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
+        android:labelFor="@id/editText_address"
         android:text="@string/_0"
         android:textAlignment="textEnd"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/textView_file_type"
-        app:layout_constraintTop_toBottomOf="@+id/textView_file_size_info"
-        android:labelFor="@id/editText_address"/>
+        app:layout_constraintTop_toBottomOf="@+id/textView_file_size_info" />
 
     <EditText
         android:id="@+id/editText_address"
@@ -27,13 +27,13 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
+        android:autofillHints="File URL"
         android:ems="10"
         android:inputType="textPersonName"
         android:text="@string/initial_url"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/textView_address"
-        app:layout_constraintTop_toTopOf="parent"
-        android:autofillHints="File URL" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/textView_address"
@@ -78,8 +78,8 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:text="@string/_0"
-        android:textSize="16sp"
         android:textAlignment="textEnd"
+        android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/textView_file_size"
         app:layout_constraintTop_toBottomOf="@+id/button_download_info" />
@@ -114,8 +114,8 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:text="@string/_0"
-        android:textSize="16sp"
         android:textAlignment="textEnd"
+        android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/textView_bytes_downloaded"
         app:layout_constraintTop_toBottomOf="@+id/button_download_file" />
@@ -130,5 +130,27 @@
         android:textSize="16sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/button_download_file" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintGuide_begin="200dp"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="8dp"
+        android:scaleY="2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView_bytes_downloaded_info" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

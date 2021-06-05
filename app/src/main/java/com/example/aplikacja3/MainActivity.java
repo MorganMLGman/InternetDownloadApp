@@ -3,15 +3,21 @@ package com.example.aplikacja3;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,8 +39,22 @@ public class MainActivity extends AppCompatActivity {
     EditText editText_address;
     TextView file_size_info;
     TextView file_type_info;
+    TextView downloaded_bytes_info;
+    ProgressBar progressBar;
 
     private static final int WRITE_EXTERNAL_STORAGE_CODE = 0;
+    private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Bundle bundle = intent.getExtras();
+            int total_size = bundle.getInt(DownloadService.FILE_SIZE);
+            int downloaded_size = bundle.getInt(DownloadService.DOWNLOADED_SIZE);
+            downloaded_bytes_info.setText(String.valueOf(downloaded_size));
+            progressBar.setMin(0);
+            progressBar.setMax(total_size);
+            progressBar.setProgress(downloaded_size);
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +66,8 @@ public class MainActivity extends AppCompatActivity {
         file_type_info = findViewById(R.id.textView_file_type_info);
         download_info = findViewById(R.id.button_download_info);
         download_file = findViewById(R.id.button_download_file);
+        downloaded_bytes_info = findViewById(R.id.textView_bytes_downloaded_info);
+        progressBar = findViewById(R.id.progressBar);
 
         download_info.setOnClickListener(v -> downloadInfo());
 
@@ -138,6 +160,18 @@ public class MainActivity extends AppCompatActivity {
             default:
                 throw new IllegalStateException("Unexpected value: " + requestCode);
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, new IntentFilter(DownloadService.PARCELABLE_NOTIFICATION));
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver);
     }
 }
 

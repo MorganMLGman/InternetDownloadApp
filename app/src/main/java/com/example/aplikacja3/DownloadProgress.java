@@ -1,5 +1,6 @@
 package com.example.aplikacja3;
 
+import android.content.Intent;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
@@ -13,10 +14,21 @@ public class DownloadProgress implements Parcelable {
 
     protected DownloadProgress(Parcel in)
     {
-
         file_size_bytes = in.readInt();
         downloaded_bytes = in.readInt();
-        state = Enum.valueOf(state_enum.class, in.readString());
+        switch (in.readInt()){
+            case 0:
+                state = state_enum.DOWNLOADING;
+                break;
+            case 1:
+                state = state_enum.DOWNLOADED;
+                break;
+            case 2:
+                state = state_enum.ERROR;
+                break;
+            default:
+                Log.d("DownloadProgress", "Constructor values not valid");
+        }
     }
 
     @Override
@@ -29,7 +41,18 @@ public class DownloadProgress implements Parcelable {
     {
         dest.writeInt(file_size_bytes);
         dest.writeInt(downloaded_bytes);
-        dest.writeString(state.toString());
+        switch (state)
+        {
+            case DOWNLOADING:
+                dest.writeInt(0);
+                break;
+            case DOWNLOADED:
+                dest.writeInt(1);
+                break;
+            case ERROR:
+                dest.writeInt(2);
+                break;
+        }
     }
 
     public static final Creator<DownloadProgress> CREATOR = new Creator<DownloadProgress>() {

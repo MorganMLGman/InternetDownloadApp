@@ -12,6 +12,7 @@ import android.os.Environment;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -33,6 +34,12 @@ public class DownloadService extends IntentService {
     private static final String URL_PARAM = "com.example.intent_service.extra.url_param";
     private static final int NOTIFICATION_ID = 1;
     private NotificationManager notificationManager;
+
+    public static final String PARCELABLE_NOTIFICATION = "com.example.intent_service.receiver";
+    public static final String FILE_SIZE = "file_size";
+    public static final String DOWNLOADED_SIZE = "downloaded_size";
+    public static final String DOWNLOAD_STATUS = "download_status";
+
 
     private int downloadedBytes = 0;
     private int progress = 0;
@@ -104,6 +111,16 @@ public class DownloadService extends IntentService {
         notificationBuilder.setOngoing(false);
 
         return notificationBuilder.build();
+    }
+
+    private void sendInfoBroadcast(int total_size, int progress, int current_state)
+    {
+        Intent intent= new Intent(PARCELABLE_NOTIFICATION);
+        intent.putExtra(FILE_SIZE, total_size);
+        intent.putExtra(DOWNLOADED_SIZE, progress);
+        intent.putExtra(DOWNLOAD_STATUS, current_state);
+
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
     public class DownloadFileTask extends AsyncTask<String, Integer, Integer>
@@ -209,6 +226,7 @@ public class DownloadService extends IntentService {
                 Log.d("Progress: ", String.valueOf(percentage));
                 progress = percentage;
                 notificationManager.notify(NOTIFICATION_ID, createNotification(progress));
+                sendInfoBroadcast(values[1], downloadedBytes, (percentage == 100) ? 0 : 1 );
             }
             super.onProgressUpdate(values);
         }
